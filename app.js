@@ -24,16 +24,27 @@ io.on('connection', (socket) => {
     console.log('a user connected ' + socket.id);
 
     socket.on('callUser', (data) => {
-        console.log("AAA" + data.nombreLlamada)
-        io.to(data.userToCall).emit('callUser', { signal: data.signalData, from: data.from,nombreLlamada : data.nombreLlamada  });
+        io.to(data.userToCall).emit('callUser', { 
+            signal: data.signalData, 
+            from: data.from, 
+            nombreLlamada: data.nombreLlamada,
+            callerId: socket.id // Aquí enviamos el ID del emisor
+        });
     });
 
     socket.on('answerCall', (data) => {
-        io.to(data.to).emit('callAccepted', data.signal);
+        io.to(data.to).emit('callAccepted', { signal: data.signal, callerId: socket.id });
     });
 
     socket.on('disconnect', () => {
         console.log('user disconnected ' + socket.id);
+    });
+
+    socket.on("msj", (msjData) => {
+        io.to(msjData.to).emit("msj", { 
+            nombre: msjData.nombre, 
+            mensaje: msjData.mensaje 
+        });
     });
 });
 
